@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <kernel/interrupts/intrStructs.h>
+#include <kernel/dosvirt/dosmem.h>
 
 #ifndef PROCESS_H
 #define PROCESS_H
@@ -46,6 +47,7 @@ struct Process {
     uint32_t status;
     volatile uint16_t* buffer;
     int cursor;
+    struct DosMemHeader* memHead;
 } __attribute__((packed));
 
 extern struct Process procHead;

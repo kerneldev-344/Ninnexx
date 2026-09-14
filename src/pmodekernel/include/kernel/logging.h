@@ -9,10 +9,12 @@ extern int cursor;
 
 void kclear();
 void kputc(char c);
+void kdelprevc();
 void kprint(const char* s);
 void kprint_hex(uint32_t n);
 void kprint_hexl(uint32_t n);
 void kprint_hex64(uint64_t n);
 void switchForegroundProcess();
+void switchForegroundProcessTo(uint32_t newPID);
 
 #endif

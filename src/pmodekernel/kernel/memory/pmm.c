@@ -136,7 +136,7 @@ bool createNewPageTable(uint32_t vAddr) {
     }
 
     KERNEL_PAGE_DIRECTORY[ptdIdx] = new;
-    if (current->procID != 0 && shouldTrack && usr) {
+    if (current->procID != 0 && shouldTrack && !usr) {
         // update, essentially, swapper_pg_dir
         PARENT_KPD[ptdIdx]=new;
     }

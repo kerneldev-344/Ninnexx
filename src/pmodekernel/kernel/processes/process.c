@@ -9,11 +9,14 @@
 #include <stdio.h>
 #include <kernel.h>
 #include <kernel/memory/pmm.h>
+#include <kernel/logging.h>
 
 bool procEnabled = false;
 
 struct Process* current;
 struct Process procHead;
+
+extern uint32_t procIDShowing;
 
 uint32_t currentProcID = 0;
 uint32_t procIDShowing = 0;
@@ -107,7 +110,7 @@ uint32_t createNewProcess(bool kernel, bool v8086, uint32_t procStackDirStruct, 
     new->cr3 = virtToPhysAddr(procStackDirStruct);
     new->cursor = 0;
     new->buffer = (uint16_t*) (procStackDirStruct + 0x4000);
-    uint32_t kernelStackTop = procStackDirStruct + 0x3FFF;
+    uint32_t kernelStackTop = procStackDirStruct + 0x4000;
 
     new->zombie = false;
     if (kernel) {
@@ -243,8 +246,17 @@ void deleteProcess(uint32_t pid) {
         :
         : "memory"
     );
-    if (pid==0) return; // cannot end swapper process
+    if (pid == 0) {
+        if (eflags & (1 << 9))
+            asm volatile ("sti");
+        return;
+    }    // if (procIDShowing == pid) {
+    //     switchForegroundProcess();
+    // }
     if (current->procID != pid) {
+        if (procIDShowing == pid) {
+            switchForegroundProcess();
+        }
         struct Process* iter = (struct Process*) &procHead;
         while (iter->next->procID != pid) {
             iter = iter->next;
@@ -254,6 +266,9 @@ void deleteProcess(uint32_t pid) {
         free(structToFree);
     } else {
         current->zombie = true;
+        if (procIDShowing == pid) {
+            switchForegroundProcess();
+        }
         if (eflags & (1 << 9)) asm volatile ("sti");
         zombieContextSwitch();
     }

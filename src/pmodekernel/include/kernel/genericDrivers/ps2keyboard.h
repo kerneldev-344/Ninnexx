@@ -9,7 +9,7 @@ struct KeyEvent {
 } __attribute__((packed));
 
 extern struct KeyEvent buffer[256];
-extern uint16_t curIdx;
+extern volatile uint16_t curIdx;
 char getCharFromEvent(struct KeyEvent ev);
 
 void initKeyboard();

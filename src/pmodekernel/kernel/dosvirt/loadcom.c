@@ -3,6 +3,7 @@
 #include <kernel/processes/contextSwitch.h>
 #include <string.h>
 #include <stdio.h>
+#include <kernel/logging.h>
 
 uint32_t loadCom(char* file, uint8_t len, char* args) {
     uint32_t cr3;
@@ -35,6 +36,7 @@ uint32_t loadCom(char* file, uint8_t len, char* args) {
         switchMemoryContext(cr3);
         return 4;
     }
+    switchForegroundProcessTo(procID);
     switchMemoryContext(cr3);
     return 0;
 }

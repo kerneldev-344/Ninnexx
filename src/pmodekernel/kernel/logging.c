@@ -47,6 +47,20 @@ void kputc(char c) {
     cursor++;
 }
 
+void kdelprevc() {
+    if (cursor == 0) {
+        cursor = VGA_WIDTH * VGA_HEIGHT;
+    } 
+    cursor--;
+    if ((!procEnabled) || (procEnabled && current->procID == procIDShowing)) {
+            videoMemory[cursor] = ((uint16_t)WHITE_ON_BLACK << 8) | ' ';
+    }
+        
+    if (procEnabled) {
+        current->buffer[cursor] = ((uint16_t)WHITE_ON_BLACK << 8) | ' ';
+    }
+}
+
 void kprint(const char* s) {
     // asm volatile("cli");
     // s--;
@@ -122,16 +136,49 @@ void kprint_hex64(uint64_t n) {
 
 void switchForegroundProcess() {
     struct Process* iter = (struct Process*) &procHead;
-    while (iter->procID != procIDShowing) {
-        // process not found, set it to the procHead isntead
+    while (iter->next != &procHead && iter->procID != procIDShowing) {
         iter = iter->next;
     }
+    struct Process* nextProc = iter->next;
+    while (nextProc->zombie) {
+        if (nextProc == iter) {
+            return; 
+        }
+        nextProc = nextProc->next;
+    }
+    procIDShowing = nextProc->procID;
+    for (int i = 0; i < 2048; i++) {
+        videoMemory[i] = nextProc->buffer[i];
+    }
+}
+
+void switchForegroundProcessTo(uint32_t newPID) {
+    // struct Process* iter = (struct Process*) &procHead;
+    // while (iter->procID != newPID) {
+    //     // process not found, set it to the procHead isntead
+    //     iter = iter->next;
+    // }
 
     
-    // printf("found pid: %X", iter->next->procID);
-    procIDShowing = iter->next->procID;
+    // // printf("found pid: %X", iter->next->procID);
+    // procIDShowing = iter->procID;
 
+    // for (int i = 0; i < 2048; i++) {
+    //     videoMemory[i] = iter->buffer[i];
+    // }
+    struct Process* iter = procHead.next;
+    do {
+        if (iter->procID == newPID && !iter->zombie) {
+            procIDShowing = iter->procID;
+            for (int i = 0; i < 2048; i++) {
+                videoMemory[i] = iter->buffer[i];
+            }
+            return;
+        }
+        iter = iter->next;
+    } while (iter != &procHead);
+    procIDShowing = procHead.procID;
     for (int i = 0; i < 2048; i++) {
-        videoMemory[i] = iter->next->buffer[i];
-    }
+        videoMemory[i] = procHead.buffer[i];
+    } // fallback
 }

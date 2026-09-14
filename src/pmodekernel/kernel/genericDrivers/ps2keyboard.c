@@ -33,11 +33,11 @@ extern struct Process procHead;
 #define L_SHIFT_MASK 0b00100000
 #define CAPS_LOCK_MASK 0b01000000
 
-uint8_t currentModifiers;
-uint8_t currentState;
+volatile uint8_t currentModifiers;
+volatile uint8_t currentState;
 
 struct KeyEvent buffer[256];
-uint16_t curIdx = 0;
+volatile uint16_t curIdx = 0;
 
 extern uint32_t procIDShowing;
 
@@ -45,17 +45,17 @@ typedef enum Keys {
     A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z, 
     one, two, three, four, five, six, seven, eight, nine, zero,
     space, enter, 
-    semicolon, backslash, period, comma, singlequote, leftbracket, rightbracket, minus, equals, slash, tick
+    semicolon, backslash, period, comma, singlequote, leftbracket, rightbracket, minus, equals, slash, tick, backspace
 };
 
 static char VisibleKeysAscii[] = {
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ' ', '\r', ';', '\\', '.', ',', '\'', '[', ']', '-', '=', '/', '`'
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ' ', '\r', ';', '\\', '.', ',', '\'', '[', ']', '-', '=', '/', '`', '\b'
 };
 
 static char VisibleKeysAsciiShift[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', ' ', '\r', ':', '|', '>', '<', '"', '{', '}', '_', '+', '?', '~'
+    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', ' ', '\r', ':', '|', '>', '<', '"', '{', '}', '_', '+', '?', '~', '\b'
 };
 
 char getCharFromEvent(struct KeyEvent ev) {
@@ -74,7 +74,9 @@ char getCharFromEvent(struct KeyEvent ev) {
 
 void keyboardIRQHandler(struct InterruptStackFrame* stack) {
     uint8_t scancode = inb(0x60);
-    struct KeyEvent ev;    
+    struct KeyEvent ev;  
+    
+    // kputc('.');
 
     if (scancode == 0xE0) {
         currentState = PREFIX_STATE;
@@ -141,8 +143,13 @@ void keyboardIRQHandler(struct InterruptStackFrame* stack) {
      
     // lctrl pressed
     if (scancode == 0x1D) {
+        // kprint(" ctrl pressed");
         currentModifiers |= L_CTRL_MASK;
         goto end;
+
+        // if((ev.modifiers & L_CTRL_MASK)) {
+            
+        // }
     }
     
     // lctrl released
@@ -155,6 +162,7 @@ void keyboardIRQHandler(struct InterruptStackFrame* stack) {
 
     // lalt pressed
     if (scancode == 0x38) {
+        // kprint("alt pressed");
         currentModifiers |= L_ALT_MASK;
         goto end;
     }
@@ -182,12 +190,28 @@ void keyboardIRQHandler(struct InterruptStackFrame* stack) {
 
     if (scancode == 0x1E) {
         ev.code = A;
+        ev.modifiers = currentModifiers;
+        // kprint("a pressed with: ");
+
+        // if((ev.modifiers & L_ALT_MASK)) {
+        //     kprint(" alt pressed");
+        // }
+
+        // if((ev.modifiers & L_CTRL_MASK)) {
+        //     kprint(" ctrl pressed");
+        // }
 
         if ((ev.modifiers & L_ALT_MASK) && (ev.modifiers & L_CTRL_MASK)) {
+            // kprint("switching foreground process");
             switchForegroundProcess();
             goto end;
         }
 
+        goto character;
+    }
+
+    if (scancode == 0x0E) {
+        ev.code = backspace;
         goto character;
     }
 

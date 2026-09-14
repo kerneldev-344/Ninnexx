@@ -83,6 +83,13 @@ int getCmdAndParse(char* cmd) {
             // idx++;
             break;
         }
+        if (cmd[idx] == '\b') {
+            idx -= 1;
+            cmd[idx] = '\0';
+            kdelprevc();
+            continue;
+            // break;
+        }
         kputc(cmd[idx]);
         idx++;
     } 

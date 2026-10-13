@@ -11,6 +11,7 @@
 #include <kernel/memory.h>
 #include <kernel/memory/pmm.h>
 #include <kernel/dosvirt/loadcom.h>
+#include <kernel/time/time.h>
 
 
 int getCmdAndParse(char* cmd);
@@ -54,6 +55,45 @@ void cmd() {
                 continue;
             }
             free(arg);
+        } else if (strncmp(cmd, "ep", 2) == 0) {
+            if (len < 4) {
+                printf("\nPlease enter the UUID of the program you would like to end\n");
+                continue;
+            } else {
+                switch (cmd[3]) {
+                    case '0':
+                    case '1':
+                        printf("\nNeither the Swapper nor Command Prompt can be ended! Sorry :D\n");
+                        break;
+                    case '2':
+                        deleteProcess(2);
+                        printf("\ndeleted proc 2\n");
+                        break;
+                    case '3':
+                        deleteProcess(3);
+                        break;
+                    case '4':
+                        deleteProcess(4);
+                        break;
+                    case '5':
+                        deleteProcess(5);
+                        break;
+                    case '6':
+                        deleteProcess(6);
+                        break;
+                    case '7':
+                        deleteProcess(7);
+                        break;
+                    case '8':
+                        deleteProcess(8);
+                        break;
+                    case '9':
+                        deleteProcess(9);
+                        break;
+                }
+            }
+        } else if (strncmp("upt", cmd, 3) == 0) {
+            printf("\nUptime: %X seconds\n", ticks/freq);
         } else {
             printf("\nCommand not found!\n");
         }

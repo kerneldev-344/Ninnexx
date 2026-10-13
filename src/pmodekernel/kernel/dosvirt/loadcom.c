@@ -32,6 +32,7 @@ uint32_t loadCom(char* file, uint8_t len, char* args) {
     *(char*)(0x81 + len) = '\r';
 
     uint32_t procID = createNewProcess(false, true, procStackStruct, 0x0100, 0xFFFE, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
+    printf("Process ID: %X", procID);
     if (procID == 0xFFFFFFFF) {
         switchMemoryContext(cr3);
         return 4;

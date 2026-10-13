@@ -23,7 +23,7 @@ To build this project, you need a **Linux** system with **QEMU, NASM, and GCC** 
 1. Download a FreeDOS image and install it onto a .img file on a VM. Name the file **freedos.img** and make sure to create a subdirectory named **Custom** inside of the C:\ directory. Create a folder named "target" in the root directory of this repository (the directory with the subdirectory "src"), and place the image in that folder.
 2. While in the main directory, become root (root is needed to mount the FreeDOS image so that the custom code can be transferred to it)
 3. Type "make run" and a QEMU window should appear. Choose **Option 5** (Load FreeDOS without Drivers).
-4. CD into the Custom folder and run boot.com; the OS should now load!
+4. CD into the Custom folder and run boot.com; the OS should now load! You can run the bundled testcom.com to test DOS compatibility by running "lc C:\custom\testcom.com"
 
 ## Controls
 ### Essential Shortcuts

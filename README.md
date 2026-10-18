@@ -123,9 +123,13 @@ To build this project, you need a **Linux** system with **QEMU, NASM, and GCC** 
 | `upt` | Get the uptime of the system in seconds |
 | `clear` | Clear the screen |
 ## Diagrams
+### Boot Process
+![alt text](image-4.png)
+![alt text](image-3.png)
 ### Memory Layout
-### Per-Process Stack
-### Context Switching Flow
+![alt text](image-5.png)
+### Per-Process Block
+![alt text](image.png)
 
 ## Images
 ![An image of the command prompt program](image-1.png)

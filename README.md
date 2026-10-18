@@ -51,7 +51,6 @@ To build this project, you need a **Linux** system with **QEMU, NASM, and GCC** 
 ---
 
 [![Architecture](https://img.shields.io/badge/Architecture-32--bit_x86-blue?style=for-the-badge)](#)
-[![Environment](https://img.shields.io/badge/Environment-FreeDOS%20%2F%20QEMU-green?style=for-the-badge)](#)
 </div>
 
 ---

@@ -46,8 +46,8 @@ $(TMP)/testcom.com: $(VIRT)/testcom.asm | $(TMP)
 $(TMP)/kernel.bin: $(TMP)/kernel.elf | $(TMP)
 	objcopy -O binary $(TMP)/kernel.elf $(TMP)/kernel.bin
 
-$(TMP)/kernel.elf: $(TMP)/kernel.o $ $(TMP)/memSetup.o $(TMP)/kalloc.o $(TMP)/logging.o $(TMP)/idt.o $(TMP)/intDispatchers.o $(TMP)/iolibrary.o $(TMP)/initInterruptHandlers.o $(TMP)/pic.o $(TMP)/e820.o $(TMP)/pmm.o $(TMP)/contHighHalfSetup.o $(TMP)/vmm.o $(TMP)/gdt.o $(TMP)/time.o $(TMP)/pitIntr.o $(TMP)/ps2keyboard.o $(TMP)/atapio.o $(TMP)/fat_access.o $(TMP)/fat_cache.o $(TMP)/fat_filelib.o $(TMP)/fat_format.o $(TMP)/fat_misc.o $(TMP)/fat_string.o $(TMP)/fat_table.o $(TMP)/fat_write.o $(TMP)/stdio.o $(TMP)/string.o $(TMP)/stdlib.o $(TMP)/atlock.o $(TMP)/contextSwitch.o $(TMP)/contextSwitchAsm.o $(TMP)/process.o $(TMP)/yield.o  $(TMP)/pageFault.o $(TMP)/syscall.o $(TMP)/cmd.o $(TMP)/loadfile.o $(TMP)/int21h.o $(TMP)/loadcom.o $(TMP)/dosmem.o $(KERNEL)/linker.ld 
-	ld -m elf_i386 -T $(KERNEL)/linker.ld -o $(TMP)/kernel.elf $(TMP)/kernel.o $(TMP)/memSetup.o $(TMP)/kalloc.o $(TMP)/logging.o $(TMP)/idt.o $(TMP)/intDispatchers.o $(TMP)/iolibrary.o $(TMP)/initInterruptHandlers.o $(TMP)/e820.o $(TMP)/pmm.o $(TMP)/pic.o $(TMP)/contHighHalfSetup.o $(TMP)/vmm.o $(TMP)/gdt.o $(TMP)/time.o $(TMP)/pitIntr.o $(TMP)/ps2keyboard.o $(TMP)/atapio.o $(TMP)/fat_access.o $(TMP)/fat_cache.o $(TMP)/fat_filelib.o $(TMP)/fat_format.o $(TMP)/fat_misc.o $(TMP)/fat_string.o $(TMP)/fat_table.o $(TMP)/fat_write.o $(TMP)/stdio.o $(TMP)/string.o $(TMP)/stdlib.o $(TMP)/atlock.o $(TMP)/contextSwitch.o $(TMP)/contextSwitchAsm.o $(TMP)/process.o $(TMP)/yield.o $(TMP)/pageFault.o $(TMP)/syscall.o $(TMP)/cmd.o $(TMP)/loadfile.o $(TMP)/int21h.o $(TMP)/loadcom.o $(TMP)/dosmem.o
+$(TMP)/kernel.elf: $(TMP)/kernel.o $ $(TMP)/memSetup.o $(TMP)/kalloc.o $(TMP)/logging.o $(TMP)/idt.o $(TMP)/intDispatchers.o $(TMP)/iolibrary.o $(TMP)/initInterruptHandlers.o $(TMP)/pic.o $(TMP)/e820.o $(TMP)/pmm.o $(TMP)/contHighHalfSetup.o $(TMP)/vmm.o $(TMP)/gdt.o $(TMP)/time.o $(TMP)/pitIntr.o $(TMP)/ps2keyboard.o $(TMP)/atapio.o $(TMP)/fat_access.o $(TMP)/fat_cache.o $(TMP)/fat_filelib.o $(TMP)/fat_format.o $(TMP)/fat_misc.o $(TMP)/fat_string.o $(TMP)/fat_table.o $(TMP)/fat_write.o $(TMP)/stdio.o $(TMP)/string.o $(TMP)/stdlib.o $(TMP)/atlock.o $(TMP)/contextSwitch.o $(TMP)/contextSwitchAsm.o $(TMP)/process.o $(TMP)/yield.o  $(TMP)/pageFault.o $(TMP)/syscall.o $(TMP)/cmd.o $(TMP)/loadfile.o $(TMP)/int21h.o $(TMP)/loadcom.o $(TMP)/dosmem.o $(TMP)/filehandles.o $(KERNEL)/linker.ld 
+	ld -m elf_i386 -T $(KERNEL)/linker.ld -o $(TMP)/kernel.elf $(TMP)/kernel.o $(TMP)/memSetup.o $(TMP)/kalloc.o $(TMP)/logging.o $(TMP)/idt.o $(TMP)/intDispatchers.o $(TMP)/iolibrary.o $(TMP)/initInterruptHandlers.o $(TMP)/e820.o $(TMP)/pmm.o $(TMP)/pic.o $(TMP)/contHighHalfSetup.o $(TMP)/vmm.o $(TMP)/gdt.o $(TMP)/time.o $(TMP)/pitIntr.o $(TMP)/ps2keyboard.o $(TMP)/atapio.o $(TMP)/fat_access.o $(TMP)/fat_cache.o $(TMP)/fat_filelib.o $(TMP)/fat_format.o $(TMP)/fat_misc.o $(TMP)/fat_string.o $(TMP)/fat_table.o $(TMP)/fat_write.o $(TMP)/stdio.o $(TMP)/string.o $(TMP)/stdlib.o $(TMP)/atlock.o $(TMP)/contextSwitch.o $(TMP)/contextSwitchAsm.o $(TMP)/process.o $(TMP)/yield.o $(TMP)/pageFault.o $(TMP)/syscall.o $(TMP)/cmd.o $(TMP)/loadfile.o $(TMP)/int21h.o $(TMP)/loadcom.o $(TMP)/dosmem.o $(TMP)/filehandles.o
 
 $(TMP)/pitIntr.o: $(TIME)/pitIntr.c | $(TMP)
 	gcc -m32 -ffreestanding -fno-stack-protector -Isrc/pmodekernel/include -c $< -o $@
@@ -165,6 +165,9 @@ $(TMP)/loadfile.o: $(FSKAPI)/loadfile.c | $(TMP)
 	gcc -m32 -ffreestanding -fno-stack-protector -Isrc/pmodekernel/include -c $< -o $@
 
 $(TMP)/int21h.o: $(VIRT)/int21h.c | $(TMP)
+	gcc -m32 -ffreestanding -fno-stack-protector -Isrc/pmodekernel/include -c $< -o $@
+
+$(TMP)/filehandles.o: $(VIRT)/filehandles.c | $(TMP)
 	gcc -m32 -ffreestanding -fno-stack-protector -Isrc/pmodekernel/include -c $< -o $@
 
 $(TMP)/loadcom.o: $(VIRT)/loadcom.c | $(TMP)

@@ -1,4 +1,4 @@
-// a command prompt in kernel mode (i know peak cybersecurity!!) cause i dont wanna implement all the bs user space interrupts
+// command prompt
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,17 +57,17 @@ void cmd() {
             free(arg);
         } else if (strncmp(cmd, "ep", 2) == 0) {
             if (len < 4) {
-                printf("\nPlease enter the UUID of the program you would like to end\n");
+                printf("\nThe UUID of the program you would like to end is necessary\n");
                 continue;
             } else {
                 switch (cmd[3]) {
                     case '0':
                     case '1':
-                        printf("\nNeither the Swapper nor Command Prompt can be ended! Sorry :D\n");
+                        printf("\nNeither the Swapper nor Command Prompt can be ended! Sorry :P\n");
                         break;
                     case '2':
                         deleteProcess(2);
-                        printf("\ndeleted proc 2\n");
+                        // printf("\ndeleted proc 2\n");
                         break;
                     case '3':
                         deleteProcess(3);

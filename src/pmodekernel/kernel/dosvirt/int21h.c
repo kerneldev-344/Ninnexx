@@ -3,6 +3,7 @@
 #include <kernel/processes/process.h>
 #include <stdio.h>
 #include <kernel/dosvirt/dosmem.h>
+#include <kernel/fskernelapi/loadfile.h>
 
 extern struct Process* current;
 
@@ -116,16 +117,109 @@ void intr21(struct InterruptStackFrame* isf) {
         isf->eax |= inpt;
     } else if ((isfv->eax & 0x0000FF00) == 0x3D00) {
         uint8_t al = (uint8_t) ((isfv->eax & 0x000000FF));
+        printf("%X", al);
         char* fileName = (char*)(isfv->ds * 16 + isfv->edx);
-        if (al == 0) {
+        uint8_t handle;
+        if ((al & 3) == 0) {
             // read only
-        } else if (al == 1) {
+            handle=loadFileDOSInterface(fileName, true, false);
+        } else if ((al & 3) == 1) {
             // write only
-        } else if (al == 2) {
+            handle=loadFileDOSInterface(fileName, false, true);
+        } else if ((al & 3) == 2) {
             // read/write
+            handle=loadFileDOSInterface(fileName, true, true);
+        } else {
+            isfv->eflags |= 1;
+            isfv->eax &= 0xFFFF0000;
+            isfv->eax |= 0xC; // invalid access mode
         }
+        if (handle==0) {
+            isfv->eflags |= 1;
+            isfv->eax &= 0xFFFF0000;
+            isfv->eax |= 2; // file not found
+            return;
+        }
+        isfv->eax &= 0xFFFF0000;
+        isfv->eax |= handle;
     } else if ((isfv->eax & 0x0000FF00) == 0x4800) {
         isfv->eax = allocMem((uint16_t) isfv->ebx);
+    } else if ((isfv->eax & 0x0000FF00) == 0x3E) {
+        //close file
+        
+    } else if ((isfv->eax & 0x0000FF00) == 0x3F) {
+        // read file
+        uint32_t addr=isfv->ds*16 + isfv->dx;
+        uint8_t num = (isfv>ebx & 0x000000FF);
+        if (fhlist[num].isActive) {
+            if (!fhlist[num].read) {
+                isfv->eflags |= 1;
+                isfv->eax &= 0xFFFF0000;
+                isfv->eax |= 5; // not permssion to read
+                return;
+            }
+        } else {
+            isfv->eflags |= 1;
+            isfv->eax &= 0xFFFF0000;
+            isfv->eax |= 6; //invalid handle
+            return;
+        }
+        uint32_t bytesRead = fl_fread(addr, 1, (isfv->ecx & 0x0000FFFF), fhlist[num].file);
+        isfv->eax &= 0xFFFF0000;
+        isfv->eax |= bytesRead;
+    } else if ((isfv->eax & 0x0000FF00) == 0x40) {
+        // write
+        uint32_t addr=isfv->ds*16 + isfv->dx;
+        uint8_t num = (isfv>ebx & 0x000000FF);
+        if (fhlist[num].isActive) {
+            if (!fhlist[num].write) {
+                isfv->eflags |= 1;
+                isfv->eax &= 0xFFFF0000;
+                isfv->eax |= 5; // not permssion to read
+                return;
+            }
+        } else {
+            isfv->eflags |= 1;
+            isfv->eax &= 0xFFFF0000;
+            isfv->eax |= 6; //invalid handle
+            return;
+        }
+        uint32_t bytesWritten = fl_fwrite(addr, 1, (isfv->ecx & 0x0000FFFF), fhlist[num].file);
+        isfv->eax &= 0xFFFF0000;
+        isfv->eax |= bytesWritten;
+    } else if ((isfv->eax & 0x0000FF00) == 0x42) {
+        // move file pointer
+        uint8_t handle = (uint8_t) isfv->ebx;
+        uint8_t al = ((uint8_t) isfv->eax & 3);
+        uint32_t offset = (((uint32_t)isfv->cx) << 16) + isfv->dx;
+        if (!fhlist[handle].isActive) {
+            isfv->eflags |= 1;
+            isfv->eax &= 0xFFFF0000;
+            isfv->eax |= 6; //invalid handle
+            return;
+        }
+        if (al == 0) {
+            // relative to beginning of file
+            fl_fseek(fhlist[handle].file, offset, SEEK_SET);
+        } else if (al == 1) {
+            // relative to current file position
+            fl_fseek(fhlist[handle].file, offset, SEEK_CUR);
+        } else if (al == 2) {
+            // relative to end of file
+            fl_fseek(fhlist[handle].file, offset, SEEK_END);
+        }
+        
+    } else if ((isfv->eax & 0x0000FF00) == 0x41) {
+        // delete file
+        char* path = (char*) (isfv->dx * 16 + isfv->edx);
+        uint8_t result = fl_remove(path);
+        for (uint8_t i = 0; i < 256; i++) {
+            if (fhlist[i].isActive && )
+        }
+        if (result == -1)
+    } else if ((isfv->eax & 0x0000FF00) == 0x3C) {
+        // create
+        
     } else {
         printf("intr num: %X", ((isf->eax & 0x0000FF00) >> 8));
     }

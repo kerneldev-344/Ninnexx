@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <kernel/dosvirt/filehandles.h>
+#include <kernel.h>
 
 uint32_t loadFile(char* path, uint32_t kPDNew, uint32_t startAddr) {
     // DO NOT LOAD AT 0X00000000 b/c will be seen as null
@@ -57,4 +59,29 @@ uint32_t loadFile(char* path, uint32_t kPDNew, uint32_t startAddr) {
 
     switchMemoryContext(oldKPD);
     return 0;
+}
+
+uint8_t loadFileDOSInterface(char* path, bool read, bool write) {
+    printf("a");
+    if (currentFileHandleNum > 255) return 0; 
+    if (!(read || write)) {
+        // printf("er1");
+        return 0; //err
+    }
+    FL_FILE* file;
+    if (read & write) file = fl_fopen(path, "r+b");
+    else if (read) file = fl_fopen(path, "rb");
+    else file = fl_fopen(path, "wb");
+    if (!file) { 
+        printf(path);
+        // printf("er12");
+        return 0; 
+    }//err
+    uint8_t fhnum = currentFileHandleNum++;
+    fhlist[fhnum].file = file;
+    fhlist[fhnum].read = read;
+    fhlist[fhnum].write = write;
+    fhlist[fhnum].isActive=true;
+    // printf("%X", fhnum);
+    return fhnum;
 }

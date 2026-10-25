@@ -2,7 +2,31 @@
 org 0x100
 
 jmp a
+c:
+    mov dl, 'e'
+    mov ah, 0x02
+    int 0x21
+    d:
+    jmp d
 a:
+    ; mov ah, 0x48
+    ; mov bx, 16
+    ; int 0x21
+
+    ; mov ah, 0x02
+    ; mov dl, 'a'
+    ; int 0x21
+
+    ; mov ah, 0x4C
+    ; int 0x21
+    mov ah, 0x3D
+    ; mov ds, seg path // ds would already map to the same segment anyways
+    mov dx, path 
+    mov al, 0x2
+    int 0x21
+
+    jc c
+
     ; mov ah, 0x09
     ; mov dl, 'a'
     ; xor ax, ax
@@ -74,4 +98,4 @@ a:
     b:
     jmp b
 
-teststring: db "hi :DDD $"
+path: db "C:\CUSTOM\BOOT.COM", 0

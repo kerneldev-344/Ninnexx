@@ -60,7 +60,7 @@ To build this project, you need a **Linux** system with **QEMU, NASM, and GCC** 
 - **DOS program virtualization**:  through v8086 and INT 21h replication
 - **Bootstrap from DOS**: Loading through a .COM file from FreeDOS
 - **Preemptive multitasking**: Preemptive multitasking with support for switching program views (through Ctrl + Alt + A)
-- **FAT support**
+- **FAT support** (through fat_io_lib)
 - **PS/2 keyboard support**
 - **Custom command prompt**
 - **Time/sleep subsystem**
